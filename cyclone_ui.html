@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cyclone • AI Assistant</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Space+Grotesk:wght@500;600&amp;display=swap');
+        
+        :root {
+            --primary: #3b82f6;
+        }
+        
+        body {
+            font-family: 'Inter', system_ui, sans-serif;
+        }
+        
+        .logo-glow {
+            box-shadow: 0 0 60px rgba(255, 255, 255, 0.15),
+                        0 0 100px rgba(255, 255, 255, 0.05);
+        }
+
+        .suggestion-card {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .suggestion-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+
+        .chat-input {
+            transition: all 0.2s ease;
+        }
+
+        .chat-input:focus-within {
+            box-shadow: 0 0 0 1px #3b82f6;
+        }
+
+        .section-header {
+            font-family: 'Space Grotesk', 'Inter', sans-serif;
+            font-weight: 600;
+            letter-spacing: -0.025em;
+        }
+
+        .ai-text {
+            background: linear-gradient(90deg, #fff, #e5e7eb);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+    </style>
+</head>
+<body class="bg-black text-white overflow-x-hidden">
+    <!-- Top Navigation -->
+    <div class="w-full border-b border-zinc-800">
+        <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+            <!-- Left: Hamburger Menu -->
+            <div class="flex items-center gap-x-3">
+                <button onclick="showMenu()" 
+                        class="w-10 h-10 flex items-center justify-center text-zinc-400 hover:text-white hover:bg-zinc-900 rounded-2xl transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.25" d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Right side (empty for now, matching original) -->
+            <div></div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="max-w-4xl mx-auto px-6 pt-12 pb-8 flex flex-col items-center">
+        
+        <!-- Logo -->
+        <div class="mb-8 flex justify-center">
+            <div class="w-28 h-28 bg-white rounded-[2.75rem] p-1.5 logo-glow">
+                <div class="w-full h-full bg-black rounded-[2.25rem] flex items-center justify-center">
+                    <!-- Fedora Hat Icon -->
+                    <svg width="52" height="52" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <!-- Hat Brim -->
+                        <ellipse cx="12" cy="17.5" rx="8.5" ry="2.8" fill="white"/>
+                        <!-- Crown -->
+                        <path d="M5.5 17.2 L5.5 9.8 Q12 5.2 18.5 9.8 L18.5 17.2" fill="white"/>
+                        <!-- Top indent -->
+                        <path d="M8 9.5 Q12 7.8 16 9.5" fill="none" stroke="#111827" stroke-width="1.75" stroke-linecap="round"/>
+                        <!-- Subtle top highlight -->
+                        <path d="M7.5 9.2 Q12 7.6 16.5 9.2" fill="none" stroke="#374151" stroke-width="0.75" stroke-linecap="round"/>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <!-- Heading -->
+        <div class="text-center max-w-3xl">
+            <h1 class="section-header text-6xl md:text-6xl font-semibold tracking-tighter leading-none mb-4">
+                Hello! How can <span class="ai-text">Cyclone</span> help you today?
+            </h1>
+            
+            <p class="text-xl md:text-2xl text-zinc-400 max-w-2xl mx-auto leading-tight">
+                I'm your personalized AI assistant. I can remember your preferences, 
+                analyze documents, and generate cinematic visuals.
+            </p>
+        </div>
+
+        <!-- Mode Selector -->
+        <div class="mt-9">
+            <button onclick="toggleMode(this)"
+                    class="flex items-center gap-x-2.5 px-5 py-2.5 bg-zinc-900 hover:bg-zinc-800 active:bg-zinc-950 border border-zinc-700 rounded-3xl text-sm font-medium transition-all">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                          d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 002.572 1.065c1.755.426 1.755 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-2.572-1.065c-1.755-.426-1.755-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                <span class="font-semibold">Mode: Default</span>
+            </button>
+        </div>
+
+        <!-- Suggestion Cards -->
+        <div class="mt-12 w-full max-w-[720px]">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                
+                <!-- Suggestion 1 -->
+                <div onclick="useSuggestion(this)" 
+                     class="suggestion-card bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 px-5 py-4 rounded-3xl cursor-pointer flex items-center">
+                    <div class="flex-1">
+                        <p class="text-[15px] font-medium">"Explain quantum computing"</p>
+                    </div>
+                </div>
+                
+                <!-- Suggestion 2 -->
+                <div onclick="useSuggestion(this)" 
+                     class="suggestion-card bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 px-5 py-4 rounded-3xl cursor-pointer flex items-center">
+                    <div class="flex-1">
+                        <p class="text-[15px] font-medium">"Write a React component"</p>
+                    </div>
+                </div>
+                
+                <!-- Suggestion 3 -->
+                <div onclick="useSuggestion(this)" 
+                     class="suggestion-card bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 px-5 py-4 rounded-3xl cursor-pointer flex items-center">
+                    <div class="flex-1">
+                        <p class="text-[15px] font-medium">"Debug a Python script"</p>
+                    </div>
+                </div>
+                
+                <!-- Suggestion 4 -->
+                <div onclick="useSuggestion(this)" 
+                     class="suggestion-card bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 px-5 py-4 rounded-3xl cursor-pointer flex items-center">
+                    <div class="flex-1">
+                        <p class="text-[15px] font-medium">"Creative writing prompt"</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Chat Input -->
+    <div class="fixed bottom-0 left-0 right-0 bg-black border-t border-zinc-800">
+        <div class="max-w-4xl mx-auto px-6 py-5">
+            <div class="chat-input flex items-center bg-zinc-900 border border-zinc-700 rounded-[2.25rem] px-2 py-2 shadow-inner">
+                
+                <!-- Attachment -->
+                <button onclick="attachFile()" 
+                        class="ml-3 w-10 h-10 flex items-center justify-center text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800 rounded-2xl transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.25" 
+                              d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                    </svg>
+                </button>
+                
+                <!-- Input Field -->
+                <input id="message-input" 
+                       type="text" 
+                       placeholder="Message Cyclone..."
+                       class="flex-1 bg-transparent px-4 py-3 text-[15px] placeholder:text-zinc-500 focus:outline-none"
+                       onkeydown="if (event.key === 'Enter') sendMessage()">
+                
+                <!-- Send Button -->
+                <button id="send-btn"
+                        onclick="sendMessage()"
+                        class="mr-1.5 w-10 h-10 flex items-center justify-center bg-white text-black rounded-[1.35rem] hover:bg-zinc-100 active:scale-95 transition-all shadow-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+                    </svg>
+                </button>
+            </div>
+            
+            <!-- Disclaimer -->
+            <div class="text-center mt-3">
+                <p class="text-[10px] text-zinc-500 tracking-wide">
+                    AI can make mistakes. Consider checking important information.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Tailwind script
+        function initializeTailwind() {
+            document.documentElement.style.setProperty('--accent', '#3b82f6');
+        }
+        
+        // Use suggestion card
+        function useSuggestion(element) {
+            const text = element.querySelector('p').textContent.trim().replace(/"/g, '');
+            const input = document.getElementById('message-input');
+            
+            input.value = text;
+            input.focus();
+            
+            // Optional: subtle animation
+            element.style.transform = 'scale(0.985)';
+            setTimeout(() => {
+                element.style.transform = 'translateY(-2px)';
+            }, 120);
+        }
+        
+        // Send message
+        function sendMessage() {
+            const input = document.getElementById('message-input');
+            const value = input.value.trim();
+            
+            if (!value) return;
+            
+            // Simulate sending
+            const originalPlaceholder = input.placeholder;
+            input.placeholder = "Thinking...";
+            input.disabled = true;
+            
+            // Create a temporary response toast
+            showToast(`Sent: "${value}"`);
+            
+            setTimeout(() => {
+                input.value = '';
+                input.placeholder = originalPlaceholder;
+                input.disabled = false;
+                input.focus();
+            }, 850);
+        }
+        
+        // Simple toast notification
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.className = `fixed bottom-24 left-1/2 -translate-x-1/2 bg-zinc-800 text-white text-sm px-5 py-3 rounded-2xl shadow-xl border border-zinc-700 flex items-center gap-x-2 z-50`;
+            toast.innerHTML = `
+                <div class="flex items-center gap-x-2">
+                    <i class="fas fa-check-circle text-emerald-400"></i>
+                    <span>${message}</span>
+                </div>
+            `;
+            
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.transition = 'all 0.2s ease';
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 200);
+            }, 2200);
+        }
+        
+        // Toggle mode (demo)
+        function toggleMode(btn) {
+            const currentText = btn.innerText;
+            
+            if (currentText.includes('Default')) {
+                btn.innerHTML = `
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                    <span class="font-semibold">Mode: Creative</span>
+                `;
+                btn.style.borderColor = '#3b82f6';
+            } else {
+                btn.innerHTML = `
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                              d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 002.572 1.065c1.755.426 1.755 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-2.572-1.065c-1.755-.426-1.755-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    <span class="font-semibold">Mode: Default</span>
+                `;
+                btn.style.borderColor = '';
+            }
+        }
+        
+        // Attach file (demo)
+        function attachFile() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.onchange = () => {
+                if (input.files.length > 0) {
+                    showToast(`Attached: ${input.files[0].name}`);
+                }
+            };
+            input.click();
+        }
+        
+        // Hamburger menu
+        function showMenu() {
+            const menu = document.createElement('div');
+            menu.className = `fixed inset-0 bg-black/70 z-[100] flex items-start justify-start`;
+            menu.innerHTML = `
+                <div onclick="event.target.remove()" class="w-72 bg-zinc-900 border-r border-zinc-700 h-full p-6">
+                    <div class="flex items-center gap-x-3 mb-8">
+                        <div class="w-9 h-9 bg-white rounded-2xl p-1">
+                            <div class="w-full h-full bg-black rounded-xl flex items-center justify-center">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
+                                    <ellipse cx="12" cy="17" rx="7" ry="2.2"/>
+                                    <path d="M6 17 L6 10 Q12 6 18 10 L18 17" />
+                                </svg>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="font-semibold text-lg">Cyclone</div>
+                            <div class="text-xs text-zinc-500">v2.4 • Personal</div>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-1 text-sm">
+                        <div class="px-4 py-3 hover:bg-zinc-800 rounded-2xl flex items-center gap-x-3 cursor-pointer">
+                            <i class="fas fa-history w-5 text-zinc-400"></i>
+                            <span>History</span>
+                        </div>
+                        <div class="px-4 py-3 hover:bg-zinc-800 rounded-2xl flex items-center gap-x-3 cursor-pointer">
+                            <i class="fas fa-folder w-5 text-zinc-400"></i>
+                            <span>Documents</span>
+                        </div>
+                        <div class="px-4 py-3 hover:bg-zinc-800 rounded-2xl flex items-center gap-x-3 cursor-pointer">
+                            <i class="fas fa-palette w-5 text-zinc-400"></i>
+                            <span>Visuals</span>
+                        </div>
+                        <div class="h-px bg-zinc-800 my-3 mx-2"></div>
+                        <div class="px-4 py-3 hover:bg-zinc-800 rounded-2xl flex items-center gap-x-3 cursor-pointer text-red-400">
+                            <i class="fas fa-sign-out-alt w-5"></i>
+                            <span>Sign out</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(menu);
+        }
+        
+        // Keyboard shortcut hint
+        function addKeyboardHint() {
+            const input = document.getElementById('message-input');
+            input.addEventListener('focus', () => {
+                if (!input.dataset.hintShown) {
+                    input.dataset.hintShown = 'true';
+                }
+            });
+        }
+        
+        // Initialize everything
+        function init() {
+            initializeTailwind();
+            addKeyboardHint();
+            
+            // Easter egg: click logo to pulse
+            const logo = document.querySelector('.logo-glow');
+            if (logo) {
+                logo.addEventListener('click', () => {
+                    logo.style.transition = 'transform 0.1s ease';
+                    logo.style.transform = 'scale(0.92)';
+                    setTimeout(() => {
+                        logo.style.transform = 'scale(1)';
+                    }, 120);
+                });
+            }
+            
+            // Make sure input is ready
+            console.log('%c[Cyclone] UI initialized successfully', 'color:#3b82f6');
+        }
+        
+        // Boot app
+        window.onload = init;
+    </script>
+</body>
+</html>
